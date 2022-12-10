@@ -4,18 +4,21 @@ class Mastermind
   def initialize(max_tries)
     @code = @@colors.sample(4)
     @max_tries = max_tries
-    # create_board
     p @code
     play_game
   end
 
+  # Take user input and check answer against code
   def play_game
-    while @max_tries > 0
+    if @max_tries > 0
       puts 'Enter the code'
       answer = gets.chomp.split(' ')
-      p answer
       check_answer(answer)
       @max_tries -= 1
+      puts "#{@max_tries} tries remaining."
+      play_game
+    else
+      puts 'You lose!'
     end
   end
 
@@ -42,18 +45,6 @@ class Mastermind
     end
     p @clues
   end
-
-  # Create a blank board
-  # def create_board
-  #   @tries.times do
-  #     puts 'Your answer:'
-  #     p [' ', ' ', ' ', ' ']
-  #     puts 'Clues:'
-  #     p [' ', ' ', ' ', ' ']
-  #   end
-  # end
-
-  # Update board based on user input
 end
 
 game_one = Mastermind.new(5)
