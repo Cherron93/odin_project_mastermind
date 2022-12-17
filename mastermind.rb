@@ -1,34 +1,83 @@
+require 'pry-byebug'
+
+# To do: Make sure that colors can't repeat in code or answer
+
 class Mastermind
   @@colors = %w[red green blue orange purple yellow]
 
-  def initialize(max_tries)
-    @code = @@colors.sample(4)
-    @max_tries = max_tries
-    p @code
-    play_game
+  def initialize
+    @clue = []
+    @num_of_guesses = 0
+    @answer = []
+    define_game_rules
+    if @mastermind == 'player'
+      puts 'Set the code'
+      @code = gets.chomp.split(' ')
+      player_mastermind
+    elsif @mastermind == 'computer'
+      @code = @@colors.sample(4)
+      computer_mastermind
+    end
   end
 
-  # Take user input and check answer against code
-  def play_game
-    if @max_tries > 0
+  # defines who is mastermind and how many tries codebreaker will get
+  def define_game_rules
+    puts 'Who should be mastermind? Player or computer?'
+    @mastermind = gets.chomp
+    puts 'How many tries will the codebreaker get?'
+    @max_tries = gets.chomp.to_i
+  end
+
+  # Plays game with player as mastermind
+  def player_mastermind
+    if @max_tries.positive?
+      if 0 < @num_of_guesses
+        puts 'Give a clue'
+        @clue = gets.chomp.split(' ')
+      end
+      computer_takes_guess
+      @num_of_guesses += 1
+      @max_tries -= 1
+      player_mastermind
+    else
+      puts 'Mastermind wins!'
+    end
+  end
+
+  # Computer guesses the code
+  def computer_takes_guess
+    if @clue == []
+      @answer = @@colors.sample(4)
+      p "Computer answer: #{@answer}"
+    else
+      right_colors = @clue.reduce(0) { |sum, color| sum += 1 if %w[black white].include?(color) }
+      @answer.pop(4 - right_colors)
+      (4 - right_colors).times { @answer.push(@@colors.sample(1)) }
+      p "Computer answer: #{@answer.flatten!}"
+    end
+  end
+
+  # Players game with computer as mastermind
+  def computer_mastermind
+    if @max_tries.positive?
       puts 'Enter the code'
-      answer = gets.chomp.split(' ')
-      check_answer(answer)
+      @answer = gets.chomp.split(' ')
+      check_answer(@answer)
       @max_tries -= 1
       puts "#{@max_tries} tries remaining."
-      play_game
+      computer_mastermind
     else
-      puts 'You lose!'
+      puts 'Mastermind wins!'
     end
   end
 
   # Check if answer matches code
   def check_answer(answer)
     if answer == @code
-      puts 'Game over! You win!'
+      puts 'Game over! Codebreaker wins!'
       @max_tries = 0
     else
-      give_clue(answer)
+      give_clue(@answer)
     end
   end
 
@@ -47,6 +96,4 @@ class Mastermind
   end
 end
 
-game_one = Mastermind.new(5)
-
-game_one.play_game
+game_one = Mastermind.new
